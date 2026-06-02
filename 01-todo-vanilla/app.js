@@ -7,6 +7,8 @@ let nextId = 1;
 let currentFilter = 'all';
 // 현재 선택된 날짜 (Date 객체, 초기값: 오늘)
 let currentDate = new Date();
+// 로컬스토리지 저장 키
+const STORAGE_KEY = 'todo-app-data';
 
 // ===== DOM 요소 참조 =====
 const todoInput = document.getElementById('todoInput');
@@ -115,6 +117,7 @@ function handleAddTodo() {
   };
 
   todoList.push(newTodo);
+  saveTodoList();
 
   // 입력창 초기화
   todoInput.value = '';
@@ -128,6 +131,7 @@ function handleAddTodo() {
 function deleteTodo(id) {
   // id가 일치하지 않는 항목만 남겨서 삭제 효과
   todoList = todoList.filter((todo) => todo.id !== id);
+  saveTodoList();
   renderTodoList();
 }
 
@@ -136,6 +140,7 @@ function toggleComplete(id) {
   todoList = todoList.map((todo) =>
     todo.id === id ? { ...todo, completed: !todo.completed } : todo
   );
+  saveTodoList();
   renderTodoList();
 }
 
@@ -196,6 +201,7 @@ function saveEdit(id) {
   todoList = todoList.map((todo) =>
     todo.id === id ? { ...todo, text: newText } : todo
   );
+  saveTodoList();
 
   renderTodoList();
 }
@@ -203,6 +209,22 @@ function saveEdit(id) {
 // ===== 수정 취소: 원래 상태로 복원 =====
 function cancelEdit(id) {
   renderTodoList();
+}
+
+// ===== 로컬스토리지 저장 =====
+// todoList 배열과 nextId를 JSON으로 직렬화하여 저장
+function saveTodoList() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ todoList, nextId }));
+}
+
+// ===== 로컬스토리지 불러오기 =====
+// 저장된 데이터가 있으면 todoList와 nextId를 복원
+function loadTodoList() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (!saved) return;
+  const { todoList: savedList, nextId: savedNextId } = JSON.parse(saved);
+  todoList = savedList;
+  nextId = savedNextId;
 }
 
 // ===== 필터 전환 =====
@@ -311,6 +333,7 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-// ===== 초기 렌더링 =====
+// ===== 초기화: 로컬스토리지 복원 후 렌더링 =====
+loadTodoList();
 updateDateDisplay();
 renderTodoList();
