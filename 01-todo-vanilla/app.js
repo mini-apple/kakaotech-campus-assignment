@@ -3,6 +3,8 @@
 let todoList = [];
 // 고유 id 생성을 위한 카운터
 let nextId = 1;
+// 현재 선택된 필터: 'all' | 'active' | 'completed'
+let currentFilter = 'all';
 
 // ===== DOM 요소 참조 =====
 const todoInput = document.getElementById('todoInput');
@@ -12,10 +14,19 @@ const errorMessage = document.getElementById('errorMessage');
 const totalCountEl = document.getElementById('totalCount');
 const completedCountEl = document.getElementById('completedCount');
 const emptyStateEl = document.getElementById('emptyState');
+// 필터 탭 버튼 NodeList
+const filterTabEls = document.querySelectorAll('.filter-tab');
 
 // ===== 이벤트 바인딩 =====
 // 추가 버튼 클릭 시 할 일 추가
 addButton.addEventListener('click', handleAddTodo);
+
+// 각 필터 탭 클릭 시 해당 필터로 전환
+filterTabEls.forEach((tab) => {
+  tab.addEventListener('click', () => {
+    setFilter(tab.dataset.filter);
+  });
+});
 
 // Enter 키로도 할 일 추가 가능
 todoInput.addEventListener('keydown', (e) => {
@@ -139,6 +150,18 @@ function cancelEdit(id) {
   renderTodoList();
 }
 
+// ===== 필터 전환 =====
+function setFilter(filter) {
+  currentFilter = filter;
+
+  // 탭 버튼의 active 클래스를 선택된 탭에만 적용
+  filterTabEls.forEach((tab) => {
+    tab.classList.toggle('filter-tab--active', tab.dataset.filter === filter);
+  });
+
+  renderTodoList();
+}
+
 // ===== 에러 메시지 표시/숨김 =====
 function showErrorMessage() {
   errorMessage.classList.remove('hidden');
@@ -157,6 +180,20 @@ function updateCountBadges() {
   completedCountEl.textContent = `완료 ${completed}`;
 }
 
+// ===== 현재 필터에 맞는 할 일 목록 반환 =====
+function getFilteredTodoList() {
+  if (currentFilter === 'active') return todoList.filter((t) => !t.completed);
+  if (currentFilter === 'completed') return todoList.filter((t) => t.completed);
+  return todoList; // 'all'
+}
+
+// 필터별 빈 상태 안내 메시지
+const EMPTY_STATE_MESSAGE = {
+  all: '등록된 할 일이 없습니다.',
+  active: '진행 중인 할 일이 없습니다.',
+  completed: '완료된 할 일이 없습니다.',
+};
+
 // ===== 전체 목록 렌더링 =====
 function renderTodoList() {
   // 기존 목록 항목 초기화 (빈 상태 요소는 유지)
@@ -164,14 +201,17 @@ function renderTodoList() {
 
   updateCountBadges();
 
-  // 할 일이 없으면 빈 상태 안내 표시
-  if (todoList.length === 0) {
+  const filteredList = getFilteredTodoList();
+
+  // 필터 결과가 없으면 현재 필터에 맞는 빈 상태 메시지 표시
+  if (filteredList.length === 0) {
+    emptyStateEl.textContent = EMPTY_STATE_MESSAGE[currentFilter];
     todoListEl.appendChild(emptyStateEl);
     return;
   }
 
   // 각 할 일 항목을 li 요소로 생성하여 목록에 추가
-  todoList.forEach((todo) => {
+  filteredList.forEach((todo) => {
     const li = createTodoItemElement(todo);
     todoListEl.appendChild(li);
   });

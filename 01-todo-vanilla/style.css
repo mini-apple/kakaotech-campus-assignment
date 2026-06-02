@@ -166,6 +166,39 @@ body {
   display: none;
 }
 
+/* ===== 필터 탭 ===== */
+.filter-tabs {
+  display: flex;
+  gap: 6px;
+  background-color: #ede8fb;
+  border-radius: 12px;
+  padding: 5px;
+}
+
+.filter-tab {
+  flex: 1;
+  padding: 9px 0;
+  border: none;
+  border-radius: 9px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: #9b7fd4;
+  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.filter-tab:hover {
+  color: #672be0;
+}
+
+/* 선택된 탭: 흰 배경 + 메인 컬러 텍스트 + 그림자 */
+.filter-tab--active {
+  background-color: #fff;
+  color: #672be0;
+  box-shadow: 0 1px 6px rgba(103, 43, 224, 0.15);
+}
+
 /* ===== 목록 헤더 (카운트 배지) ===== */
 .list-section {
   display: flex;
