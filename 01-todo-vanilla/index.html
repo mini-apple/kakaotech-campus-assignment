@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Todo</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1 class="header__title">My Todo</h1>
+      <p class="header__subtitle">오늘 할 일을 기록하세요</p>
+    </header>
+
+    <!-- 주간 뷰 -->
+    <div class="week-view">
+      <div class="week-nav">
+        <button id="prevWeekButton" class="week-nav__btn" aria-label="이전 주">←</button>
+        <span id="weekRangeLabel" class="week-nav__label"></span>
+        <button id="nextWeekButton" class="week-nav__btn" aria-label="다음 주">→</button>
+      </div>
+      <!-- 요일 셀은 JS로 동적 생성 -->
+      <div id="weekDays" class="week-days"></div>
+    </div>
+
+    <!-- 날짜 네비게이터 -->
+    <div class="date-nav">
+      <button id="prevDateButton" class="date-nav__btn" aria-label="이전 날짜">←</button>
+      <span id="currentDateLabel" class="date-nav__label"></span>
+      <button id="nextDateButton" class="date-nav__btn" aria-label="다음 날짜">→</button>
+    </div>
+
+    <!-- 할 일 입력 영역 -->
+    <section class="input-section">
+      <div class="input-wrapper">
+        <input
+          type="text"
+          id="todoInput"
+          class="todo-input"
+          placeholder="할 일을 입력하세요..."
+          maxlength="100"
+        />
+        <button id="addButton" class="btn btn--primary">추가</button>
+      </div>
+      <!-- 빈 입력값 안내 메시지 -->
+      <p id="errorMessage" class="error-message hidden">할 일을 입력해주세요.</p>
+    </section>
+
+    <!-- 상태별 필터 탭 -->
+    <div class="filter-tabs">
+      <button class="filter-tab filter-tab--active" data-filter="all">전체</button>
+      <button class="filter-tab" data-filter="active">진행 중</button>
+      <button class="filter-tab" data-filter="completed">완료</button>
+    </div>
+
+    <!-- 할 일 목록 영역 -->
+    <section class="list-section">
+      <div class="list-header">
+        <span id="totalCount" class="count-badge">전체 0</span>
+        <span id="completedCount" class="count-badge count-badge--done">완료 0</span>
+      </div>
+      <ul id="todoList" class="todo-list">
+        <!-- 할 일 항목이 없을 때 표시 -->
+        <li id="emptyState" class="empty-state">등록된 할 일이 없습니다.</li>
+      </ul>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

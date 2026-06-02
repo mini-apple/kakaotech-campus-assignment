@@ -1,0 +1,463 @@
+/* ===== 기본 리셋 및 폰트 설정 ===== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+  background-color: #f5f3ff;
+  color: #1a1a2e;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 48px 16px;
+}
+
+/* ===== 레이아웃 컨테이너 ===== */
+.container {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* ===== 헤더 ===== */
+.header {
+  text-align: center;
+}
+
+.header__title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #672be0;
+  letter-spacing: -0.5px;
+}
+
+.header__subtitle {
+  margin-top: 6px;
+  font-size: 0.9rem;
+  color: #888;
+}
+
+/* ===== 주간 뷰 ===== */
+.week-view {
+  background: #fff;
+  border: 1.5px solid #e8e0f8;
+  border-radius: 16px;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.week-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+.week-nav__btn {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  color: #672be0;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.week-nav__btn:hover {
+  background-color: #f0ebff;
+}
+
+.week-nav__label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #9b7fd4;
+}
+
+/* 7칸 균등 그리드 */
+.week-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.week-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 2px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.week-day:hover {
+  background-color: #f8f5ff;
+}
+
+/* 요일 이름 */
+.week-day__name {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: #bbb;
+}
+
+/* 날짜 숫자 원형 영역 */
+.week-day__date {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+/* Todo 개수 (0이면 투명으로 레이아웃만 유지) */
+.week-day__count {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: transparent;
+  min-height: 12px;
+  line-height: 1;
+  margin-top: 3px;
+}
+
+/* Todo가 있을 때 개수 표시 */
+.week-day__count--has-todos {
+  color: #9b7fd4;
+}
+
+/* 오늘 날짜 강조 */
+.week-day--today .week-day__name {
+  color: #672be0;
+  font-weight: 700;
+}
+
+.week-day--today .week-day__date {
+  background-color: #672be0;
+  color: #fff;
+}
+
+/* 선택된 날짜 (오늘이 아닌 경우) */
+.week-day--selected:not(.week-day--today) .week-day__date {
+  background-color: #ede8fb;
+  color: #672be0;
+}
+
+.week-day--selected .week-day__name {
+  color: #672be0;
+}
+
+/* 오늘 날짜를 선택한 경우: 링 효과로 선택 표시 */
+.week-day--today.week-day--selected .week-day__date {
+  box-shadow: 0 0 0 3px rgba(103, 43, 224, 0.25);
+}
+
+/* ===== 날짜 네비게이터 ===== */
+.date-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border: 1.5px solid #e8e0f8;
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+
+.date-nav__btn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: #672be0;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+  line-height: 1;
+}
+
+.date-nav__btn:hover {
+  background-color: #f0ebff;
+}
+
+.date-nav__label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  text-align: center;
+  letter-spacing: -0.2px;
+}
+
+/* 오늘 날짜일 때 메인 컬러로 강조 */
+.date-nav__label--today {
+  color: #672be0;
+}
+
+/* ===== 입력 영역 ===== */
+.input-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input-wrapper {
+  display: flex;
+  gap: 8px;
+}
+
+.todo-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid #e0d6f7;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+  background: #fff;
+  color: #1a1a2e;
+}
+
+/* 포커스 시 메인 컬러 테두리 */
+.todo-input:focus {
+  border-color: #672be0;
+}
+
+/* ===== 버튼 공통 스타일 ===== */
+.btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s, opacity 0.2s;
+  white-space: nowrap;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+/* 주요 버튼 (추가) */
+.btn--primary {
+  background-color: #672be0;
+  color: #fff;
+}
+
+.btn--primary:hover {
+  background-color: #5621c0;
+}
+
+/* 완료 버튼 */
+.btn--complete {
+  background-color: #eee8fd;
+  color: #672be0;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  border-radius: 8px;
+}
+
+.btn--complete:hover {
+  background-color: #ddd0fb;
+}
+
+/* 완료 상태에서의 완료 버튼 */
+.btn--complete.active {
+  background-color: #672be0;
+  color: #fff;
+}
+
+/* 수정 버튼 */
+.btn--edit {
+  background-color: #f0f0f0;
+  color: #555;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  border-radius: 8px;
+}
+
+.btn--edit:hover {
+  background-color: #e0e0e0;
+}
+
+/* 저장 버튼 (수정 중 상태) */
+.btn--save {
+  background-color: #672be0;
+  color: #fff;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  border-radius: 8px;
+}
+
+.btn--save:hover {
+  background-color: #5621c0;
+}
+
+/* 삭제 버튼 */
+.btn--delete {
+  background-color: #fce8e8;
+  color: #d93025;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  border-radius: 8px;
+}
+
+.btn--delete:hover {
+  background-color: #f5c6c6;
+}
+
+/* ===== 에러 메시지 ===== */
+.error-message {
+  font-size: 0.82rem;
+  color: #d93025;
+  padding-left: 4px;
+}
+
+.hidden {
+  display: none;
+}
+
+/* ===== 필터 탭 ===== */
+.filter-tabs {
+  display: flex;
+  gap: 6px;
+  background-color: #ede8fb;
+  border-radius: 12px;
+  padding: 5px;
+}
+
+.filter-tab {
+  flex: 1;
+  padding: 9px 0;
+  border: none;
+  border-radius: 9px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: #9b7fd4;
+  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.filter-tab:hover {
+  color: #672be0;
+}
+
+/* 선택된 탭: 흰 배경 + 메인 컬러 텍스트 + 그림자 */
+.filter-tab--active {
+  background-color: #fff;
+  color: #672be0;
+  box-shadow: 0 1px 6px rgba(103, 43, 224, 0.15);
+}
+
+/* ===== 목록 헤더 (카운트 배지) ===== */
+.list-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.list-header {
+  display: flex;
+  gap: 8px;
+}
+
+.count-badge {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background-color: #e9e4f7;
+  color: #672be0;
+}
+
+.count-badge--done {
+  background-color: #d4edda;
+  color: #276b38;
+}
+
+/* ===== 할 일 목록 ===== */
+.todo-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 빈 상태 안내 */
+.empty-state {
+  text-align: center;
+  color: #aaa;
+  font-size: 0.9rem;
+  padding: 40px 0;
+}
+
+/* ===== 개별 할 일 항목 ===== */
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border: 1.5px solid #e8e0f8;
+  border-radius: 12px;
+  padding: 14px 16px;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.todo-item:hover {
+  box-shadow: 0 2px 12px rgba(103, 43, 224, 0.08);
+  border-color: #cbb8f5;
+}
+
+/* 완료된 항목 스타일 */
+.todo-item--completed {
+  background-color: #fafafa;
+  border-color: #ebebeb;
+  opacity: 0.7;
+}
+
+/* 할 일 텍스트 */
+.todo-item__text {
+  flex: 1;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  word-break: break-all;
+  color: #1a1a2e;
+}
+
+/* 완료된 항목 텍스트 취소선 */
+.todo-item--completed .todo-item__text {
+  text-decoration: line-through;
+  color: #aaa;
+}
+
+/* 수정 중 인라인 입력창 */
+.todo-item__edit-input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 2px solid #672be0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  color: #1a1a2e;
+}
+
+/* 버튼 그룹 */
+.todo-item__actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
