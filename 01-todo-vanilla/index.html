@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Todo</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1 class="header__title">My Todo</h1>
+      <p class="header__subtitle">오늘 할 일을 기록하세요</p>
+    </header>
+
+    <!-- 할 일 입력 영역 -->
+    <section class="input-section">
+      <div class="input-wrapper">
+        <input
+          type="text"
+          id="todoInput"
+          class="todo-input"
+          placeholder="할 일을 입력하세요..."
+          maxlength="100"
+        />
+        <button id="addButton" class="btn btn--primary">추가</button>
+      </div>
+      <!-- 빈 입력값 안내 메시지 -->
+      <p id="errorMessage" class="error-message hidden">할 일을 입력해주세요.</p>
+    </section>
+
+    <!-- 할 일 목록 영역 -->
+    <section class="list-section">
+      <div class="list-header">
+        <span id="totalCount" class="count-badge">전체 0</span>
+        <span id="completedCount" class="count-badge count-badge--done">완료 0</span>
+      </div>
+      <ul id="todoList" class="todo-list">
+        <!-- 할 일 항목이 없을 때 표시 -->
+        <li id="emptyState" class="empty-state">등록된 할 일이 없습니다.</li>
+      </ul>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
