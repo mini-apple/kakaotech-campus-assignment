@@ -7,6 +7,8 @@ let nextId = 1;
 let currentFilter = 'all';
 // 현재 선택된 날짜 (Date 객체, 초기값: 오늘)
 let currentDate = new Date();
+// 주간 뷰에서 보여주는 주의 시작일 (월요일). getMonday는 함수 선언으로 호이스팅됨
+let currentWeekStart = getMonday(new Date());
 // 로컬스토리지 저장 키
 const STORAGE_KEY = 'todo-app-data';
 
@@ -18,7 +20,12 @@ const errorMessage = document.getElementById('errorMessage');
 const totalCountEl = document.getElementById('totalCount');
 const completedCountEl = document.getElementById('completedCount');
 const emptyStateEl = document.getElementById('emptyState');
-// 날짜 네비게이터
+// 주간 뷰
+const prevWeekButton = document.getElementById('prevWeekButton');
+const nextWeekButton = document.getElementById('nextWeekButton');
+const weekRangeLabelEl = document.getElementById('weekRangeLabel');
+const weekDaysEl = document.getElementById('weekDays');
+// 일간 날짜 네비게이터
 const prevDateButton = document.getElementById('prevDateButton');
 const nextDateButton = document.getElementById('nextDateButton');
 const currentDateLabelEl = document.getElementById('currentDateLabel');
@@ -27,26 +34,21 @@ const filterTabEls = document.querySelectorAll('.filter-tab');
 
 // ===== 이벤트 바인딩 =====
 addButton.addEventListener('click', handleAddTodo);
+prevWeekButton.addEventListener('click', moveToPrevWeek);
+nextWeekButton.addEventListener('click', moveToNextWeek);
 prevDateButton.addEventListener('click', moveToPrevDate);
 nextDateButton.addEventListener('click', moveToNextDate);
 
-// 각 필터 탭 클릭 시 해당 필터로 전환
 filterTabEls.forEach((tab) => {
-  tab.addEventListener('click', () => {
-    setFilter(tab.dataset.filter);
-  });
+  tab.addEventListener('click', () => setFilter(tab.dataset.filter));
 });
 
-// Enter 키로도 할 일 추가 가능
 todoInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') handleAddTodo();
 });
 
-// 입력 중 에러 메시지 자동 숨김
 todoInput.addEventListener('input', () => {
-  if (todoInput.value.trim() !== '') {
-    hideErrorMessage();
-  }
+  if (todoInput.value.trim() !== '') hideErrorMessage();
 });
 
 // ===== 날짜 유틸리티 =====
@@ -59,7 +61,7 @@ function toDateString(date) {
   return `${y}-${m}-${d}`;
 }
 
-// 날짜 네비게이터에 표시할 형식으로 포맷 ('2026년 6월 2일 (월)')
+// 날짜 네비게이터에 표시할 형식: '2026년 6월 2일 (월)'
 function formatDateLabel(date) {
   const DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토'];
   const y = date.getFullYear();
@@ -69,9 +71,109 @@ function formatDateLabel(date) {
   return `${y}년 ${m}월 ${d}일 (${day})`;
 }
 
-// ===== 날짜 네비게이션 =====
+// 주어진 날짜가 속한 주의 월요일을 반환
+function getMonday(date) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  const day = d.getDay(); // 0=일, 1=월, ..., 6=토
+  // 일요일이면 -6, 그 외는 1-day 만큼 이동해 월요일로 맞춤
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  return d;
+}
 
-// 날짜 표시 갱신: 레이블 텍스트 및 오늘 강조 클래스 적용
+// 주 시작일(월요일)로부터 월~일 7일치 Date 배열 반환
+function getWeekDates(weekStart) {
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(weekStart);
+    d.setDate(d.getDate() + i);
+    return d;
+  });
+}
+
+// 주간 뷰 헤더 레이블 포맷 (크로스 월/년 처리)
+// 같은 월: '2026년 6월 2일 - 8일'
+// 다른 월: '2026년 5월 26일 - 6월 1일'
+// 다른 년: '2025년 12월 29일 - 2026년 1월 4일'
+function formatWeekRangeLabel(weekStart) {
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekEnd.getDate() + 6);
+  const sy = weekStart.getFullYear(), sm = weekStart.getMonth() + 1, sd = weekStart.getDate();
+  const ey = weekEnd.getFullYear(), em = weekEnd.getMonth() + 1, ed = weekEnd.getDate();
+  if (sy === ey && sm === em) return `${sy}년 ${sm}월 ${sd}일 - ${ed}일`;
+  if (sy === ey) return `${sy}년 ${sm}월 ${sd}일 - ${em}월 ${ed}일`;
+  return `${sy}년 ${sm}월 ${sd}일 - ${ey}년 ${em}월 ${ed}일`;
+}
+
+// ===== 주간 뷰 렌더링 =====
+function renderWeekView() {
+  const weekDates = getWeekDates(currentWeekStart);
+  const todayStr = toDateString(new Date());
+  const selectedStr = toDateString(currentDate);
+  const DAY_NAMES = ['월', '화', '수', '목', '금', '토', '일'];
+
+  weekDaysEl.innerHTML = weekDates.map((date, i) => {
+    const dateStr = toDateString(date);
+    // 완료되지 않은 Todo 개수만 표시
+    const count = todoList.filter((t) => t.date === dateStr && !t.completed).length;
+    const isToday = dateStr === todayStr;
+    const isSelected = dateStr === selectedStr;
+
+    let cls = 'week-day';
+    if (isToday) cls += ' week-day--today';
+    if (isSelected) cls += ' week-day--selected';
+
+    return `
+      <button class="${cls}" onclick="selectDate('${dateStr}')">
+        <span class="week-day__name">${DAY_NAMES[i]}</span>
+        <span class="week-day__date">${date.getDate()}</span>
+        <span class="week-day__count${count > 0 ? ' week-day__count--has-todos' : ''}">
+          ${count > 0 ? `${count}개` : ''}
+        </span>
+      </button>
+    `;
+  }).join('');
+
+  weekRangeLabelEl.textContent = formatWeekRangeLabel(currentWeekStart);
+}
+
+// ===== 주간 뷰 날짜 셀 클릭 → 날짜 선택 =====
+function selectDate(dateStr) {
+  // 'YYYY-MM-DD' 파싱 시 UTC 기준 생성을 막기 위해 로컬 시간으로 직접 생성
+  const [y, m, d] = dateStr.split('-').map(Number);
+  currentDate = new Date(y, m - 1, d);
+  updateDateDisplay();
+  renderTodoList(); // 내부에서 renderWeekView도 호출
+}
+
+// ===== 주 이동 =====
+function moveToPrevWeek() {
+  const prev = new Date(currentWeekStart);
+  prev.setDate(prev.getDate() - 7);
+  currentWeekStart = prev;
+  renderWeekView();
+}
+
+function moveToNextWeek() {
+  const next = new Date(currentWeekStart);
+  next.setDate(next.getDate() + 7);
+  currentWeekStart = next;
+  renderWeekView();
+}
+
+// currentDate가 현재 주간 뷰 범위를 벗어나면 currentWeekStart를 맞춤
+function syncWeekToCurrentDate() {
+  const weekEnd = new Date(currentWeekStart);
+  weekEnd.setDate(weekEnd.getDate() + 6);
+  const cur = toDateString(currentDate);
+  if (cur < toDateString(currentWeekStart) || cur > toDateString(weekEnd)) {
+    currentWeekStart = getMonday(currentDate);
+  }
+}
+
+// ===== 날짜 네비게이터 =====
+
+// 날짜 레이블 갱신 및 오늘 강조 클래스 적용
 function updateDateDisplay() {
   const isToday = toDateString(currentDate) === toDateString(new Date());
   currentDateLabelEl.textContent =
@@ -79,20 +181,22 @@ function updateDateDisplay() {
   currentDateLabelEl.classList.toggle('date-nav__label--today', isToday);
 }
 
-// 하루 이전으로 이동
+// 하루 이전으로 이동 (주 경계를 넘으면 주간 뷰도 동기화)
 function moveToPrevDate() {
   const prev = new Date(currentDate);
   prev.setDate(prev.getDate() - 1);
   currentDate = prev;
+  syncWeekToCurrentDate();
   updateDateDisplay();
   renderTodoList();
 }
 
-// 하루 다음으로 이동
+// 하루 다음으로 이동 (주 경계를 넘으면 주간 뷰도 동기화)
 function moveToNextDate() {
   const next = new Date(currentDate);
   next.setDate(next.getDate() + 1);
   currentDate = next;
+  syncWeekToCurrentDate();
   updateDateDisplay();
   renderTodoList();
 }
@@ -119,7 +223,6 @@ function handleAddTodo() {
   todoList.push(newTodo);
   saveTodoList();
 
-  // 입력창 초기화
   todoInput.value = '';
   hideErrorMessage();
   todoInput.focus();
@@ -149,7 +252,6 @@ function startEdit(id) {
   const todo = todoList.find((t) => t.id === id);
   if (!todo) return;
 
-  // 해당 항목의 li 요소를 찾아 수정 모드 UI로 교체
   const todoItemEl = document.querySelector(`[data-id="${id}"]`);
   if (!todoItemEl) return;
 
@@ -163,7 +265,6 @@ function startEdit(id) {
   editInput.value = todo.text;
   editInput.maxLength = 100;
 
-  // 기존 텍스트 요소를 input으로 교체
   todoItemEl.replaceChild(editInput, textEl);
 
   // 버튼을 저장/취소로 교체
@@ -172,11 +273,10 @@ function startEdit(id) {
     <button class="btn btn--edit" onclick="cancelEdit(${id})">취소</button>
   `;
 
-  // input에 포커스 및 커서를 텍스트 끝으로
+  // 커서를 텍스트 끝으로
   editInput.focus();
   editInput.setSelectionRange(editInput.value.length, editInput.value.length);
 
-  // Enter로 저장, Escape로 취소
   editInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') saveEdit(id);
     if (e.key === 'Escape') cancelEdit(id);
@@ -197,12 +297,10 @@ function saveEdit(id) {
     return;
   }
 
-  // 상태 업데이트
   todoList = todoList.map((todo) =>
     todo.id === id ? { ...todo, text: newText } : todo
   );
   saveTodoList();
-
   renderTodoList();
 }
 
@@ -254,7 +352,6 @@ function updateCountBadges() {
   const dateTodos = todoList.filter((t) => t.date === toDateString(currentDate));
   const total = dateTodos.length;
   const completed = dateTodos.filter((t) => t.completed).length;
-
   totalCountEl.textContent = `전체 ${total}`;
   completedCountEl.textContent = `완료 ${completed}`;
 }
@@ -263,7 +360,6 @@ function updateCountBadges() {
 function getFilteredTodoList() {
   // 1단계: 선택된 날짜에 해당하는 항목만 추출
   const dateTodos = todoList.filter((t) => t.date === toDateString(currentDate));
-
   // 2단계: 상태 필터 적용
   if (currentFilter === 'active') return dateTodos.filter((t) => !t.completed);
   if (currentFilter === 'completed') return dateTodos.filter((t) => t.completed);
@@ -280,22 +376,20 @@ const EMPTY_STATE_MESSAGE = {
 // ===== 전체 목록 렌더링 =====
 function renderTodoList() {
   todoListEl.innerHTML = '';
-
   updateCountBadges();
+  // 할 일 변경/날짜 변경 시 주간 뷰의 날짜별 개수와 선택 상태도 함께 갱신
+  renderWeekView();
 
   const filteredList = getFilteredTodoList();
 
-  // 필터 결과가 없으면 현재 필터에 맞는 빈 상태 메시지 표시
   if (filteredList.length === 0) {
     emptyStateEl.textContent = EMPTY_STATE_MESSAGE[currentFilter];
     todoListEl.appendChild(emptyStateEl);
     return;
   }
 
-  // 각 할 일 항목을 li 요소로 생성하여 목록에 추가
   filteredList.forEach((todo) => {
-    const li = createTodoItemElement(todo);
-    todoListEl.appendChild(li);
+    todoListEl.appendChild(createTodoItemElement(todo));
   });
 }
 
@@ -336,4 +430,4 @@ function escapeHtml(text) {
 // ===== 초기화: 로컬스토리지 복원 후 렌더링 =====
 loadTodoList();
 updateDateDisplay();
-renderTodoList();
+renderTodoList(); // 내부에서 renderWeekView도 호출됨

@@ -42,6 +42,130 @@ body {
   color: #888;
 }
 
+/* ===== 주간 뷰 ===== */
+.week-view {
+  background: #fff;
+  border: 1.5px solid #e8e0f8;
+  border-radius: 16px;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.week-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+.week-nav__btn {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  color: #672be0;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.week-nav__btn:hover {
+  background-color: #f0ebff;
+}
+
+.week-nav__label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #9b7fd4;
+}
+
+/* 7칸 균등 그리드 */
+.week-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.week-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 2px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.week-day:hover {
+  background-color: #f8f5ff;
+}
+
+/* 요일 이름 */
+.week-day__name {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: #bbb;
+}
+
+/* 날짜 숫자 원형 영역 */
+.week-day__date {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+/* Todo 개수 (0이면 투명으로 레이아웃만 유지) */
+.week-day__count {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: transparent;
+  min-height: 12px;
+  line-height: 1;
+  margin-top: 3px;
+}
+
+/* Todo가 있을 때 개수 표시 */
+.week-day__count--has-todos {
+  color: #9b7fd4;
+}
+
+/* 오늘 날짜 강조 */
+.week-day--today .week-day__name {
+  color: #672be0;
+  font-weight: 700;
+}
+
+.week-day--today .week-day__date {
+  background-color: #672be0;
+  color: #fff;
+}
+
+/* 선택된 날짜 (오늘이 아닌 경우) */
+.week-day--selected:not(.week-day--today) .week-day__date {
+  background-color: #ede8fb;
+  color: #672be0;
+}
+
+.week-day--selected .week-day__name {
+  color: #672be0;
+}
+
+/* 오늘 날짜를 선택한 경우: 링 효과로 선택 표시 */
+.week-day--today.week-day--selected .week-day__date {
+  box-shadow: 0 0 0 3px rgba(103, 43, 224, 0.25);
+}
+
 /* ===== 날짜 네비게이터 ===== */
 .date-nav {
   display: flex;
