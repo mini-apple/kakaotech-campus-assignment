@@ -1,10 +1,12 @@
 // ===== 상태 =====
-// 할 일 목록을 배열로 관리. 각 항목은 { id, text, completed } 구조
+// 할 일 목록을 배열로 관리. 각 항목은 { id, text, completed, date } 구조
 let todoList = [];
 // 고유 id 생성을 위한 카운터
 let nextId = 1;
 // 현재 선택된 필터: 'all' | 'active' | 'completed'
 let currentFilter = 'all';
+// 현재 선택된 날짜 (Date 객체, 초기값: 오늘)
+let currentDate = new Date();
 
 // ===== DOM 요소 참조 =====
 const todoInput = document.getElementById('todoInput');
@@ -14,12 +16,17 @@ const errorMessage = document.getElementById('errorMessage');
 const totalCountEl = document.getElementById('totalCount');
 const completedCountEl = document.getElementById('completedCount');
 const emptyStateEl = document.getElementById('emptyState');
+// 날짜 네비게이터
+const prevDateButton = document.getElementById('prevDateButton');
+const nextDateButton = document.getElementById('nextDateButton');
+const currentDateLabelEl = document.getElementById('currentDateLabel');
 // 필터 탭 버튼 NodeList
 const filterTabEls = document.querySelectorAll('.filter-tab');
 
 // ===== 이벤트 바인딩 =====
-// 추가 버튼 클릭 시 할 일 추가
 addButton.addEventListener('click', handleAddTodo);
+prevDateButton.addEventListener('click', moveToPrevDate);
+nextDateButton.addEventListener('click', moveToNextDate);
 
 // 각 필터 탭 클릭 시 해당 필터로 전환
 filterTabEls.forEach((tab) => {
@@ -40,6 +47,54 @@ todoInput.addEventListener('input', () => {
   }
 });
 
+// ===== 날짜 유틸리티 =====
+
+// Date 객체를 'YYYY-MM-DD' 문자열로 변환 (날짜 비교 기준값)
+function toDateString(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+// 날짜 네비게이터에 표시할 형식으로 포맷 ('2026년 6월 2일 (월)')
+function formatDateLabel(date) {
+  const DAY_NAMES = ['일', '월', '화', '수', '목', '금', '토'];
+  const y = date.getFullYear();
+  const m = date.getMonth() + 1;
+  const d = date.getDate();
+  const day = DAY_NAMES[date.getDay()];
+  return `${y}년 ${m}월 ${d}일 (${day})`;
+}
+
+// ===== 날짜 네비게이션 =====
+
+// 날짜 표시 갱신: 레이블 텍스트 및 오늘 강조 클래스 적용
+function updateDateDisplay() {
+  const isToday = toDateString(currentDate) === toDateString(new Date());
+  currentDateLabelEl.textContent =
+    formatDateLabel(currentDate) + (isToday ? ' · 오늘' : '');
+  currentDateLabelEl.classList.toggle('date-nav__label--today', isToday);
+}
+
+// 하루 이전으로 이동
+function moveToPrevDate() {
+  const prev = new Date(currentDate);
+  prev.setDate(prev.getDate() - 1);
+  currentDate = prev;
+  updateDateDisplay();
+  renderTodoList();
+}
+
+// 하루 다음으로 이동
+function moveToNextDate() {
+  const next = new Date(currentDate);
+  next.setDate(next.getDate() + 1);
+  currentDate = next;
+  updateDateDisplay();
+  renderTodoList();
+}
+
 // ===== 할 일 추가 =====
 function handleAddTodo() {
   const text = todoInput.value.trim();
@@ -51,11 +106,12 @@ function handleAddTodo() {
     return;
   }
 
-  // 새 할 일 객체 생성
+  // 새 할 일 객체 생성 (현재 선택된 날짜를 함께 저장)
   const newTodo = {
     id: nextId++,
     text,
     completed: false,
+    date: toDateString(currentDate),
   };
 
   todoList.push(newTodo);
@@ -92,7 +148,6 @@ function startEdit(id) {
   const todoItemEl = document.querySelector(`[data-id="${id}"]`);
   if (!todoItemEl) return;
 
-  // 기존 텍스트 영역을 input으로 교체
   const textEl = todoItemEl.querySelector('.todo-item__text');
   const actionsEl = todoItemEl.querySelector('.todo-item__actions');
 
@@ -172,19 +227,25 @@ function hideErrorMessage() {
 }
 
 // ===== 카운트 뱃지 업데이트 =====
+// 선택된 날짜 기준으로 전체/완료 수를 계산
 function updateCountBadges() {
-  const total = todoList.length;
-  const completed = todoList.filter((t) => t.completed).length;
+  const dateTodos = todoList.filter((t) => t.date === toDateString(currentDate));
+  const total = dateTodos.length;
+  const completed = dateTodos.filter((t) => t.completed).length;
 
   totalCountEl.textContent = `전체 ${total}`;
   completedCountEl.textContent = `완료 ${completed}`;
 }
 
-// ===== 현재 필터에 맞는 할 일 목록 반환 =====
+// ===== 현재 날짜 + 상태 필터에 맞는 할 일 목록 반환 =====
 function getFilteredTodoList() {
-  if (currentFilter === 'active') return todoList.filter((t) => !t.completed);
-  if (currentFilter === 'completed') return todoList.filter((t) => t.completed);
-  return todoList; // 'all'
+  // 1단계: 선택된 날짜에 해당하는 항목만 추출
+  const dateTodos = todoList.filter((t) => t.date === toDateString(currentDate));
+
+  // 2단계: 상태 필터 적용
+  if (currentFilter === 'active') return dateTodos.filter((t) => !t.completed);
+  if (currentFilter === 'completed') return dateTodos.filter((t) => t.completed);
+  return dateTodos; // 'all'
 }
 
 // 필터별 빈 상태 안내 메시지
@@ -196,7 +257,6 @@ const EMPTY_STATE_MESSAGE = {
 
 // ===== 전체 목록 렌더링 =====
 function renderTodoList() {
-  // 기존 목록 항목 초기화 (빈 상태 요소는 유지)
   todoListEl.innerHTML = '';
 
   updateCountBadges();
@@ -252,4 +312,5 @@ function escapeHtml(text) {
 }
 
 // ===== 초기 렌더링 =====
+updateDateDisplay();
 renderTodoList();

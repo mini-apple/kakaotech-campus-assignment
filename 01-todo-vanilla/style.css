@@ -42,6 +42,46 @@ body {
   color: #888;
 }
 
+/* ===== 날짜 네비게이터 ===== */
+.date-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border: 1.5px solid #e8e0f8;
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+
+.date-nav__btn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: #672be0;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+  line-height: 1;
+}
+
+.date-nav__btn:hover {
+  background-color: #f0ebff;
+}
+
+.date-nav__label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  text-align: center;
+  letter-spacing: -0.2px;
+}
+
+/* 오늘 날짜일 때 메인 컬러로 강조 */
+.date-nav__label--today {
+  color: #672be0;
+}
+
 /* ===== 입력 영역 ===== */
 .input-section {
   display: flex;
