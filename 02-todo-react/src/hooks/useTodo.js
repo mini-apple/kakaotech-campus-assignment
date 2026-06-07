@@ -10,6 +10,7 @@ const toDateString = (date) => {
 export function useTodo() {
   const [todoList, setTodoList] = useState([])
   const [nextId, setNextId] = useState(1)
+  const [currentFilter, setCurrentFilter] = useState('all')
 
   const addTodo = (text) => {
     const trimmed = text.trim()
@@ -50,13 +51,21 @@ export function useTodo() {
     return true
   }
 
+  const getFilteredTodoList = () => {
+    if (currentFilter === 'active') return todoList.filter((t) => !t.completed)
+    if (currentFilter === 'completed') return todoList.filter((t) => t.completed)
+    return todoList
+  }
+
   const totalCount = todoList.length
   const completedCount = todoList.filter((t) => t.completed).length
 
   return {
-    todoList,
+    filteredTodoList: getFilteredTodoList(),
     totalCount,
     completedCount,
+    currentFilter,
+    setFilter: setCurrentFilter,
     addTodo,
     deleteTodo,
     toggleComplete,

@@ -8,7 +8,7 @@ const EMPTY_MESSAGE = {
 
 export default function TodoList({ todoList, totalCount, completedCount, onToggle, onDelete, onSave, filter = 'all' }) {
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 flex-1 min-h-0">
       <div className="flex gap-2">
         <span className="text-[0.78rem] font-semibold px-[10px] py-1 rounded-[20px] bg-[#e9e4f7] text-primary">
           전체 {totalCount}
@@ -18,23 +18,25 @@ export default function TodoList({ todoList, totalCount, completedCount, onToggl
         </span>
       </div>
 
-      {todoList.length === 0 ? (
-        <p className="text-center text-[#aaa] text-[0.9rem] py-10">
-          {EMPTY_MESSAGE[filter]}
-        </p>
-      ) : (
-        <ul className="flex flex-col gap-[10px] list-none">
-          {todoList.map((todo) => (
-            <TodoItem
-              key={todo.id}
-              todo={todo}
-              onToggle={onToggle}
-              onDelete={onDelete}
-              onSave={onSave}
-            />
-          ))}
-        </ul>
-      )}
+      <div className="flex-1 min-h-0 bg-[#f0edf8] border border-[#e4ddf5] rounded-[12px] p-4 overflow-y-auto flex flex-col">
+        {todoList.length === 0 ? (
+          <div className="flex-1 flex items-center justify-center">
+            <p className="text-[#bbb] text-[0.9rem]">{EMPTY_MESSAGE[filter]}</p>
+          </div>
+        ) : (
+          <ul className="flex flex-col gap-[10px] list-none">
+            {todoList.map((todo) => (
+              <TodoItem
+                key={todo.id}
+                todo={todo}
+                onToggle={onToggle}
+                onDelete={onDelete}
+                onSave={onSave}
+              />
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   )
 }

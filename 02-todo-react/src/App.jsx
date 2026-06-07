@@ -1,12 +1,15 @@
 import { useTodo } from './hooks/useTodo'
 import TodoInput from './components/TodoInput'
 import TodoList from './components/TodoList'
+import FilterTabs from './components/FilterTabs'
 
 function App() {
   const {
-    todoList,
+    filteredTodoList,
     totalCount,
     completedCount,
+    currentFilter,
+    setFilter,
     addTodo,
     deleteTodo,
     toggleComplete,
@@ -14,7 +17,7 @@ function App() {
   } = useTodo()
 
   return (
-    <div className="w-full max-w-[480px] mx-auto flex flex-col gap-8">
+    <div className="w-full max-w-[480px] mx-auto flex flex-col gap-8 flex-1">
       <header className="text-center">
         <h1 className="text-[2rem] font-bold text-primary tracking-[-0.5px]">React Todo</h1>
         <p className="mt-[6px] text-[0.9rem] text-[#888]">오늘의 할 일을 관리하세요</p>
@@ -22,10 +25,13 @@ function App() {
 
       <TodoInput onAdd={addTodo} />
 
+      <FilterTabs currentFilter={currentFilter} onFilterChange={setFilter} />
+
       <TodoList
-        todoList={todoList}
+        todoList={filteredTodoList}
         totalCount={totalCount}
         completedCount={completedCount}
+        currentFilter={currentFilter}
         onToggle={toggleComplete}
         onDelete={deleteTodo}
         onSave={saveEdit}
