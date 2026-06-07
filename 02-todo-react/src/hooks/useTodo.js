@@ -1,16 +1,11 @@
 import { useState } from 'react'
-
-const toDateString = (date) => {
-  const y = date.getFullYear()
-  const m = String(date.getMonth() + 1).padStart(2, '0')
-  const d = String(date.getDate()).padStart(2, '0')
-  return `${y}-${m}-${d}`
-}
+import { toDateString } from '../utils/dateUtils'
 
 export function useTodo() {
   const [todoList, setTodoList] = useState([])
   const [nextId, setNextId] = useState(1)
   const [currentFilter, setCurrentFilter] = useState('all')
+  const [currentDate, setCurrentDate] = useState(new Date())
 
   const addTodo = (text) => {
     const trimmed = text.trim()
@@ -20,7 +15,7 @@ export function useTodo() {
       id: nextId,
       text: trimmed,
       completed: false,
-      date: toDateString(new Date()),
+      date: toDateString(currentDate),
     }
     setTodoList((prev) => [...prev, newTodo])
     setNextId((prev) => prev + 1)
@@ -51,14 +46,32 @@ export function useTodo() {
     return true
   }
 
-  const getFilteredTodoList = () => {
-    if (currentFilter === 'active') return todoList.filter((t) => !t.completed)
-    if (currentFilter === 'completed') return todoList.filter((t) => t.completed)
-    return todoList
+  const moveToPrevDate = () => {
+    setCurrentDate((prev) => {
+      const d = new Date(prev)
+      d.setDate(d.getDate() - 1)
+      return d
+    })
   }
 
-  const totalCount = todoList.length
-  const completedCount = todoList.filter((t) => t.completed).length
+  const moveToNextDate = () => {
+    setCurrentDate((prev) => {
+      const d = new Date(prev)
+      d.setDate(d.getDate() + 1)
+      return d
+    })
+  }
+
+  const getFilteredTodoList = () => {
+    const dateTodos = todoList.filter((t) => t.date === toDateString(currentDate))
+    if (currentFilter === 'active') return dateTodos.filter((t) => !t.completed)
+    if (currentFilter === 'completed') return dateTodos.filter((t) => t.completed)
+    return dateTodos
+  }
+
+  const dateTodos = todoList.filter((t) => t.date === toDateString(currentDate))
+  const totalCount = dateTodos.length
+  const completedCount = dateTodos.filter((t) => t.completed).length
 
   return {
     filteredTodoList: getFilteredTodoList(),
@@ -66,6 +79,9 @@ export function useTodo() {
     completedCount,
     currentFilter,
     setFilter: setCurrentFilter,
+    currentDate,
+    moveToPrevDate,
+    moveToNextDate,
     addTodo,
     deleteTodo,
     toggleComplete,
