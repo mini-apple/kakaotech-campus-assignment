@@ -1,11 +1,23 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { toDateString } from '../utils/dateUtils'
 
+const STORAGE_KEY = 'todo-app-data'
+
+const loadFromStorage = () => {
+  const saved = localStorage.getItem(STORAGE_KEY)
+  if (!saved) return { todoList: [], nextId: 1 }
+  return JSON.parse(saved)
+}
+
 export function useTodo() {
-  const [todoList, setTodoList] = useState([])
-  const [nextId, setNextId] = useState(1)
+  const [todoList, setTodoList] = useState(() => loadFromStorage().todoList)
+  const [nextId, setNextId] = useState(() => loadFromStorage().nextId)
   const [currentFilter, setCurrentFilter] = useState('all')
   const [currentDate, setCurrentDate] = useState(new Date())
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ todoList, nextId }))
+  }, [todoList, nextId])
 
   const addTodo = (text) => {
     const trimmed = text.trim()
