@@ -70,11 +70,12 @@ DATABASE_URL=sqlite:///./todos.db
 
 `.claude/skills/`에 정의됨. `/skill-name [인수]`로 호출.
 
-### `/add-api [엔드포인트]`
-새 API 기능 추가 시 사용. 3개 파일을 동시 스캐폴딩:
-- `backend/main.py` — Pydantic 모델(Create/Update/Response) + FastAPI 라우터
-- `frontend/app/api/[엔드포인트]/route.ts` — Next.js 프록시 핸들러
-- `frontend/app/actions.ts` — Server Action 함수 추가
+### `/add-server-filter [파라미터명]`
+서버 기반 필터·검색 추가 시 사용 (Step 5, 6). 4곳 동시 수정:
+- `backend/main.py` — `Optional[str]` 쿼리 파라미터 + SQLAlchemy filter
+- `frontend/app/api/todos/route.ts` — searchParams 전달 확인
+- `frontend/app/actions.ts` — 파라미터 포함 fetch URL
+- `frontend/app/todos/page.tsx` — searchParams prop 읽기 + `<Suspense>`
 
 ### `/add-page [경로]`
 새 페이지 추가 시 사용. Next.js App Router 구조 스캐폴딩:
