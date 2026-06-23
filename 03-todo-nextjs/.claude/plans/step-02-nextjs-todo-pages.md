@@ -80,9 +80,55 @@ export default async function TodoDetailPage({
 }
 ```
 
+### loading.tsx / error.tsx
+
+```typescript
+// frontend/app/todos/loading.tsx
+export default function Loading() {
+  return <div>로딩 중...</div>
+}
+```
+
+```typescript
+// frontend/app/todos/error.tsx
+'use client'
+import { useEffect } from 'react'
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error
+  reset: () => void
+}) {
+  useEffect(() => { console.error(error) }, [error])
+  return (
+    <div>
+      <p>오류가 발생했습니다.</p>
+      <button onClick={reset}>다시 시도</button>
+    </div>
+  )
+}
+```
+
+> `error.tsx`는 반드시 `'use client'`여야 한다 — Next.js 요구사항.
+
+## Server vs Client Component 구분
+
+| 파일 | 선언 | 이유 |
+|------|------|------|
+| `todos/page.tsx` | 없음 (Server) | 데이터 fetch만, 이벤트 핸들러 없음 |
+| `todos/loading.tsx` | 없음 (Server) | 정적 UI |
+| `todos/error.tsx` | `'use client'` 필수 | Next.js 에러 바운더리 요구사항 |
+| `todos/new/page.tsx` | 없음 (Server) | form action은 Server Action 연결 |
+| `todos/[todoId]/page.tsx` | 없음 (Server) | 데이터 fetch + Server Action 연결 |
+
+클라이언트 상태(`useState`, `useEffect`)나 이벤트 핸들러가 필요한 경우에만 `'use client'` 추가.
+
 ## 검증
 
 1. `npm run dev` 실행
 2. `http://localhost:3000/todos` — 빈 목록 페이지 렌더링 확인
 3. `http://localhost:3000/todos/new` — 생성 폼 렌더링 확인
-4. TypeScript 에러 없음 (`npm run lint`)
+4. `http://localhost:3000/todos/1` — 수정 페이지 렌더링 확인
+5. TypeScript 에러 없음 (`npm run lint`)

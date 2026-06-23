@@ -77,24 +77,33 @@ Base.metadata.create_all(bind=engine)
 
 ### 5. CRUD 엔드포인트
 
-| Method | URL | 설명 |
-|--------|-----|------|
-| GET | `/todos` | 전체 목록 조회 |
-| GET | `/todos/{id}` | 단일 조회 |
-| POST | `/todos` | 생성 |
-| PUT | `/todos/{id}` | 수정 |
-| DELETE | `/todos/{id}` | 삭제 |
+Step 1 과제 필수 엔드포인트:
+
+| Method | URL | 설명 | 응답 코드 |
+|--------|-----|------|---------|
+| GET | `/todos` | 전체 목록 조회 | 200 |
+| POST | `/todos` | 생성 | 201 |
+| PUT | `/todos/{id}` | 수정 | 200 |
+| DELETE | `/todos/{id}` | 삭제 | 200 |
+
+Step 2 편집 페이지(`/todos/[todoId]/page.tsx`)에 필요하므로 선제적으로 추가:
+
+| Method | URL | 설명 | 응답 코드 |
+|--------|-----|------|---------|
+| GET | `/todos/{id}` | 단일 조회 | 200 |
 
 ## 핵심 패턴
 
 - `404` 처리: `db.query(Todo).filter(Todo.id == id).first()` 후 `None`이면 `raise HTTPException(status_code=404)`
 - `response_model` 모든 엔드포인트에 명시 필수
+- POST는 `status_code=201` 명시
 
 ## 검증
 
-1. `.venv\Scripts\activate` → `uvicorn main:app --reload`
+1. `backend/` 디렉토리에서 `.venv\Scripts\activate` → `uvicorn main:app --reload`
+   - `backend/`에서 실행해야 `todos.db`가 `backend/` 내에 생성됨
 2. `http://localhost:8000/docs` 에서 Swagger UI 확인
 3. POST `/todos` → body: `{"title": "테스트"}` → 201 응답
-4. GET `/todos` → 목록 반환 확인
+4. GET `/todos` → 목록에 생성된 항목 포함 확인
 5. PUT `/todos/1` → `{"completed": true}` → 수정 확인
-6. DELETE `/todos/1` → 삭제 확인
+6. DELETE `/todos/1` → 삭제 후 GET 목록에서 제거 확인

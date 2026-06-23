@@ -107,3 +107,5 @@ export default function FilterClient() {
 3. `?filter=completed` — 완료만 표시
 4. 필터 버튼 클릭 시 URL 변경 + 목록 갱신
 5. URL 직접 입력해도 필터 적용됨 (SSR 검증)
+6. `?filter=active` 상태에서 새 Todo 추가 → 필터가 유지된 채로 목록 갱신 확인
+7. 브라우저 Network 탭에서 FastAPI로 `?filter=active` 쿼리가 전달되는지 확인 (클라이언트 필터링이 아님을 검증)

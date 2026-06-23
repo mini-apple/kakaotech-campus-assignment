@@ -36,7 +36,8 @@ DATABASE_URL=sqlite:///./todos.db
 
 ## 검증
 
-1. `frontend/.env.local` 파일 존재 확인
-2. Next.js 개발 서버 재시작 (`npm run dev`)
-3. `http://localhost:3000/todos` — CORS 에러 없이 데이터 로드 확인
-4. 에러 발생 시: `Failed to parse URL from undefined` → `.env.local` 재확인 후 서버 재시작
+1. `frontend/.gitignore`에 `.env.local`이 포함되어 있는지 확인
+2. `frontend/.env.local` 파일 존재 확인
+3. Next.js 개발 서버 재시작 (`npm run dev`)
+4. `http://localhost:3000/todos` — CORS 에러 없이 데이터 로드 확인
+5. 에러 발생 시: `Failed to parse URL from undefined` → `.env.local` 재확인 후 서버 재시작

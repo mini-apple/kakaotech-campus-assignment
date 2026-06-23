@@ -117,3 +117,6 @@ Step 2 페이지에 actions.ts import 추가:
 2. `http://localhost:3000/todos` — FastAPI에서 가져온 목록 표시
 3. 새 Todo 생성 → 목록에 반영
 4. Todo 수정/삭제 → 목록 갱신
+5. 브라우저 DevTools → Network 탭에서 요청 흐름 확인
+   - 생성/수정/삭제: 브라우저 → `/api/todos` (route.ts) → FastAPI 순서
+   - 목록 조회: Server Component에서 직접 FastAPI 호출 (브라우저 요청 없음)
