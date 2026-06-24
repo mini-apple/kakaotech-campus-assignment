@@ -8,14 +8,15 @@ import EmptyState from './_components/ui/EmptyState'
 import TodoInputClient from './_components/TodoInputClient'
 import TodoItemClient from './_components/TodoItemClient'
 import FilterClient from './_components/FilterClient'
+import SearchClient from './_components/SearchClient'
 
 export default async function TodosPage({
   searchParams,
 }: {
   searchParams: Promise<{ filter?: string; search?: string }>
 }) {
-  const { filter } = await searchParams
-  const todos = await getTodos({ filter })
+  const { filter, search } = await searchParams
+  const todos = await getTodos({ filter, search })
   const completedCount = todos.filter((t) => t.completed).length
 
   return (
@@ -25,6 +26,7 @@ export default async function TodosPage({
       <TodoInputClient />
 
       <Suspense fallback={null}>
+        <SearchClient />
         <FilterClient />
       </Suspense>
 
