@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, date as date_cls
 import os
 
 # DB 설정
@@ -22,11 +22,13 @@ class Todo(Base):
     title = Column(String, nullable=False)
     completed = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+    date = Column(String, nullable=True)  # "YYYY-MM-DD"
 
 
 # Pydantic 스키마
 class TodoCreate(BaseModel):
     title: str
+    date: Optional[str] = None
 
 
 class TodoUpdate(BaseModel):
@@ -39,6 +41,7 @@ class TodoResponse(BaseModel):
     title: str
     completed: bool
     created_at: datetime
+    date: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -69,7 +72,14 @@ def get_db():
 
 # 엔드포인트
 @app.get("/todos", response_model=list[TodoResponse])
-def get_todos(filter: Optional[str] = None, search: Optional[str] = None, db: Session = Depends(get_db)):
+def get_todos(
+    filter: Optional[str] = None,
+    search: Optional[str] = None,
+    date: Optional[str] = None,
+    date_from: Optional[str] = None,
+    date_to: Optional[str] = None,
+    db: Session = Depends(get_db),
+):
     query = db.query(Todo)
     if filter == "active":
         query = query.filter(Todo.completed == False)
@@ -77,6 +87,12 @@ def get_todos(filter: Optional[str] = None, search: Optional[str] = None, db: Se
         query = query.filter(Todo.completed == True)
     if search:
         query = query.filter(Todo.title.ilike(f"%{search}%"))
+    if date:
+        query = query.filter(Todo.date == date)
+    if date_from:
+        query = query.filter(Todo.date >= date_from)
+    if date_to:
+        query = query.filter(Todo.date <= date_to)
     return query.all()
 
 
@@ -90,7 +106,7 @@ def get_todo(todo_id: int, db: Session = Depends(get_db)):
 
 @app.post("/todos", response_model=TodoResponse, status_code=201)
 def create_todo(body: TodoCreate, db: Session = Depends(get_db)):
-    todo = Todo(title=body.title)
+    todo = Todo(title=body.title, date=body.date or date_cls.today().isoformat())
     db.add(todo)
     db.commit()
     db.refresh(todo)

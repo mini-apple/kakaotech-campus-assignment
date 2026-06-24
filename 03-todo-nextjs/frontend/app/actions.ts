@@ -9,10 +9,16 @@ const BACKEND_URL = process.env.BACKEND_URL
 export async function getTodos(params?: {
   filter?: string
   search?: string
+  date?: string
+  date_from?: string
+  date_to?: string
 }): Promise<Todo[]> {
   const searchParams = new URLSearchParams()
   if (params?.filter) searchParams.set('filter', params.filter)
   if (params?.search) searchParams.set('search', params.search)
+  if (params?.date) searchParams.set('date', params.date)
+  if (params?.date_from) searchParams.set('date_from', params.date_from)
+  if (params?.date_to) searchParams.set('date_to', params.date_to)
   const query = searchParams.toString()
   const res = await fetch(
     `${BACKEND_URL}/todos${query ? `?${query}` : ''}`,

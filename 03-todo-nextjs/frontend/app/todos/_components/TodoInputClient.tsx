@@ -1,16 +1,24 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Button from './ui/Button'
 import Input from './ui/Input'
 import Text from './ui/Text'
+
+function toDateString(date: Date): string {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
 
 export default function TodoInputClient() {
   const [value, setValue] = useState('')
   const [showError, setShowError] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   const handleAdd = async () => {
     if (!value.trim()) {
@@ -18,10 +26,11 @@ export default function TodoInputClient() {
       inputRef.current?.focus()
       return
     }
+    const currentDate = searchParams.get('date') ?? toDateString(new Date())
     await fetch('/api/todos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: value.trim() }),
+      body: JSON.stringify({ title: value.trim(), date: currentDate }),
     })
     setValue('')
     setShowError(false)
