@@ -6,8 +6,18 @@ import type { Todo } from './types'
 
 const BACKEND_URL = process.env.BACKEND_URL
 
-export async function getTodos(): Promise<Todo[]> {
-  const res = await fetch(`${BACKEND_URL}/todos`, { cache: 'no-store' })
+export async function getTodos(params?: {
+  filter?: string
+  search?: string
+}): Promise<Todo[]> {
+  const searchParams = new URLSearchParams()
+  if (params?.filter) searchParams.set('filter', params.filter)
+  if (params?.search) searchParams.set('search', params.search)
+  const query = searchParams.toString()
+  const res = await fetch(
+    `${BACKEND_URL}/todos${query ? `?${query}` : ''}`,
+    { cache: 'no-store' }
+  )
   if (!res.ok) throw new Error('Failed to fetch todos')
   return res.json()
 }

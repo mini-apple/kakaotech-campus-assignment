@@ -69,8 +69,13 @@ def get_db():
 
 # 엔드포인트
 @app.get("/todos", response_model=list[TodoResponse])
-def get_todos(db: Session = Depends(get_db)):
-    return db.query(Todo).all()
+def get_todos(filter: Optional[str] = None, db: Session = Depends(get_db)):
+    query = db.query(Todo)
+    if filter == "active":
+        query = query.filter(Todo.completed == False)
+    elif filter == "completed":
+        query = query.filter(Todo.completed == True)
+    return query.all()
 
 
 @app.get("/todos/{todo_id}", response_model=TodoResponse)
