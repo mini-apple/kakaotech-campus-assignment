@@ -1,0 +1,50 @@
+'use server'
+
+import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
+import type { Todo } from './types'
+
+const BACKEND_URL = process.env.BACKEND_URL
+
+export async function getTodos(): Promise<Todo[]> {
+  const res = await fetch(`${BACKEND_URL}/todos`, { cache: 'no-store' })
+  if (!res.ok) throw new Error('Failed to fetch todos')
+  return res.json()
+}
+
+export async function getTodo(id: string): Promise<Todo | null> {
+  const res = await fetch(`${BACKEND_URL}/todos/${id}`, { cache: 'no-store' })
+  if (!res.ok) return null
+  return res.json()
+}
+
+export async function createTodo(formData: FormData) {
+  const title = formData.get('title') as string
+  if (!title?.trim()) return
+  await fetch(`${BACKEND_URL}/todos`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title: title.trim() }),
+  })
+  revalidatePath('/todos')
+  redirect('/todos')
+}
+
+// .bind(null, id)로 호출 — formData는 form submit 시 자동 주입
+export async function updateTodo(id: string, formData: FormData) {
+  const title = formData.get('title') as string
+  const completed = formData.has('completed')
+  await fetch(`${BACKEND_URL}/todos/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title: title?.trim(), completed }),
+  })
+  revalidatePath('/todos')
+  redirect('/todos')
+}
+
+export async function deleteTodo(id: string, _formData: FormData) {
+  await fetch(`${BACKEND_URL}/todos/${id}`, { method: 'DELETE' })
+  revalidatePath('/todos')
+  redirect('/todos')
+}

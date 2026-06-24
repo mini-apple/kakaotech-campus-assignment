@@ -1,3 +1,4 @@
+import { createTodo } from '@/app/actions'
 import PageLayout from '../_components/ui/PageLayout'
 import SubPageHeader from '../_components/ui/SubPageHeader'
 import FormField from '../_components/ui/FormField'
@@ -10,8 +11,7 @@ export default function NewTodoPage() {
     <PageLayout>
       <SubPageHeader title="새 Todo" />
 
-      {/* Step 3에서 action에 createTodo 연결 */}
-      <form className="flex flex-col gap-4">
+      <form action={createTodo} className="flex flex-col gap-4">
         <FormField
           label="할 일"
           name="title"

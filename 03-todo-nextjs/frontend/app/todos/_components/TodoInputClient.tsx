@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import Button from './ui/Button'
 import Input from './ui/Input'
 import Text from './ui/Text'
@@ -9,16 +10,22 @@ export default function TodoInputClient() {
   const [value, setValue] = useState('')
   const [showError, setShowError] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const router = useRouter()
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!value.trim()) {
       setShowError(true)
       inputRef.current?.focus()
       return
     }
-    // Step 3에서 createTodo(value) 연결
+    await fetch('/api/todos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: value.trim() }),
+    })
     setValue('')
     setShowError(false)
+    router.refresh()
     inputRef.current?.focus()
   }
 

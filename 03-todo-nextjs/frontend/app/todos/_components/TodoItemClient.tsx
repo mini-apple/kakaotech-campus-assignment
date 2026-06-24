@@ -1,19 +1,16 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import type { Todo } from '@/app/types'
 import Button from './ui/Button'
 import Input from './ui/Input'
-
-interface Todo {
-  id: number
-  title: string
-  completed: boolean
-}
 
 export default function TodoItemClient({ todo }: { todo: Todo }) {
   const [isEditing, setIsEditing] = useState(false)
   const [editValue, setEditValue] = useState(todo.title)
   const inputRef = useRef<HTMLInputElement>(null)
+  const router = useRouter()
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -23,13 +20,18 @@ export default function TodoItemClient({ todo }: { todo: Todo }) {
     }
   }, [isEditing])
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!editValue.trim()) {
       inputRef.current?.focus()
       return
     }
-    // Step 3에서 updateTodo(todo.id, { title: editValue.trim() }) 연결
+    await fetch(`/api/todos/${todo.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: editValue.trim() }),
+    })
     setIsEditing(false)
+    router.refresh()
   }
 
   const handleCancel = () => {
@@ -40,6 +42,20 @@ export default function TodoItemClient({ todo }: { todo: Todo }) {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') handleSave()
     if (e.key === 'Escape') handleCancel()
+  }
+
+  const handleToggle = async () => {
+    await fetch(`/api/todos/${todo.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ completed: !todo.completed }),
+    })
+    router.refresh()
+  }
+
+  const handleDelete = async () => {
+    await fetch(`/api/todos/${todo.id}`, { method: 'DELETE' })
+    router.refresh()
   }
 
   const baseClass =
@@ -81,7 +97,7 @@ export default function TodoItemClient({ todo }: { todo: Todo }) {
             <Button
               size="sm"
               variant={todo.completed ? 'primary' : 'ghost'}
-              onClick={() => {/* Step 3에서 toggleTodo(todo.id) 연결 */}}
+              onClick={handleToggle}
             >
               {todo.completed ? '완료됨' : '완료'}
             </Button>
@@ -93,11 +109,7 @@ export default function TodoItemClient({ todo }: { todo: Todo }) {
             >
               수정
             </Button>
-            <Button
-              size="sm"
-              variant="danger"
-              onClick={() => {/* Step 3에서 deleteTodo(todo.id) 연결 */}}
-            >
+            <Button size="sm" variant="danger" onClick={handleDelete}>
               삭제
             </Button>
           </>

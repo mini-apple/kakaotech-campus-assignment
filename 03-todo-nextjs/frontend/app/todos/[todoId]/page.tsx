@@ -1,3 +1,4 @@
+import { getTodo, updateTodo, deleteTodo } from '@/app/actions'
 import PageLayout from '../_components/ui/PageLayout'
 import SubPageHeader from '../_components/ui/SubPageHeader'
 import EmptyState from '../_components/ui/EmptyState'
@@ -7,21 +8,13 @@ import ButtonRow from '../_components/ui/ButtonRow'
 import Button from '../_components/ui/Button'
 import LinkButton from '../_components/ui/LinkButton'
 
-interface Todo {
-  id: number
-  title: string
-  completed: boolean
-}
-
 export default async function TodoDetailPage({
   params,
 }: {
   params: Promise<{ todoId: string }>
 }) {
   const { todoId } = await params
-
-  // Step 3에서 getTodo(todoId) 연결
-  const todo: Todo | null = null
+  const todo = await getTodo(todoId)
 
   if (!todo) {
     return (
@@ -32,12 +25,14 @@ export default async function TodoDetailPage({
     )
   }
 
+  const updateAction = updateTodo.bind(null, todo.id.toString())
+  const deleteAction = deleteTodo.bind(null, todo.id.toString())
+
   return (
     <PageLayout>
       <SubPageHeader title="Todo 수정" />
 
-      {/* Step 3에서 action에 updateTodo 연결 */}
-      <form className="flex flex-col gap-4">
+      <form action={updateAction} className="flex flex-col gap-4">
         <FormField
           label="할 일"
           name="title"
@@ -54,8 +49,7 @@ export default async function TodoDetailPage({
         </ButtonRow>
       </form>
 
-      {/* Step 3에서 action에 deleteTodo 연결 */}
-      <form className="mt-auto">
+      <form action={deleteAction} className="mt-auto">
         <Button type="submit" variant="danger" className="w-full py-3 text-[0.95rem]">
           삭제
         </Button>

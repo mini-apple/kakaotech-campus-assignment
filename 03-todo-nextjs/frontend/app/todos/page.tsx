@@ -1,3 +1,4 @@
+import { getTodos } from '@/app/actions'
 import PageLayout from './_components/ui/PageLayout'
 import PageHeader from './_components/ui/PageHeader'
 import TodoListContainer from './_components/ui/TodoListContainer'
@@ -6,15 +7,8 @@ import EmptyState from './_components/ui/EmptyState'
 import TodoInputClient from './_components/TodoInputClient'
 import TodoItemClient from './_components/TodoItemClient'
 
-interface Todo {
-  id: number
-  title: string
-  completed: boolean
-}
-
 export default async function TodosPage() {
-  // Step 3에서 getTodos() 연결
-  const todos: Todo[] = []
+  const todos = await getTodos()
   const completedCount = todos.filter((t) => t.completed).length
 
   return (
